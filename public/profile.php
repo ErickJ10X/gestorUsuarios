@@ -1,7 +1,7 @@
 <?php
 require_once('../includes/auth.php');
 require_once('../includes/conexion.php');
-global $conexion;
+global $conn;
 ?>
 
 <?php include('../includes/header.php'); ?>
@@ -11,9 +11,7 @@ global $conexion;
 
         <?php
         try {
-            $sql = "SELECT id,usuario,rol FROM usuarios WHERE id = ?";
-            $stmt = $conexion->prepare($sql);
-            $stmt->execute([$_SESSION['id']]);
+            $stmt = $conn->getUserById($_SESSION['id']);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user): ?>

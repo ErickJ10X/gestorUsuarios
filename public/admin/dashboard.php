@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
 }
 
 require_once(__DIR__ . '/../../includes/conexion.php');
-global $conexion;
+global $conn;
 require_once(__DIR__ . '/../../includes/header.php');
 ?>
 
@@ -48,9 +48,7 @@ require_once(__DIR__ . '/../../includes/header.php');
                 <tbody class="main__table-body">
                 <?php
                 try {
-                    $sql = "SELECT id, usuario, rol FROM usuarios ORDER BY id DESC";
-                    $stmt = $conexion->query($sql);
-
+                    $stmt = $conn->getAllUser();
                     while ($user = $stmt->fetch(PDO::FETCH_ASSOC)):
                         ?>
                         <tr class="main__table-row">

@@ -2,7 +2,7 @@
 session_start();
 require_once('../includes/conexion.php');
 require_once('../includes/funciones.php');
-global $conexion;
+global $conn;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: login.php?error=motodo_invalido');
@@ -19,13 +19,10 @@ if (empty($usuario) || empty($contrasena)) {
 
 try {
 
-    $sql = "SELECT * FROM usuarios WHERE usuario = :usuario LIMIT 1";
-    $stmt = $conexion->prepare($sql);
-    $stmt->bindParam(':usuario', $usuario, PDO::PARAM_STR);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($contrasena, $user['contrasena'])) {
+    $user = $conn->login($usuario, $contrasena);
+
+    if ($user) {
         $_SESSION['usuario'] = $user['usuario'];
         $_SESSION['id'] = $user['id'];
         $_SESSION['rol'] = $user['rol'];

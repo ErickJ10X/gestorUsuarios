@@ -27,15 +27,15 @@ if (session_status() === PHP_SESSION_NONE) {
                     </li>
                     <?php if ($_SESSION['rol'] === 'admin'): ?>
                         <li class="header__menu-item">
-                            <a href="/gestorUsuarios/public/admin/users.php" class="header__menu-link header__menu-link--admin">Admin</a> <!-- Modificador -->
+                            <a href="/gestorUsuarios/public/admin/dashboard.php" class="header__menu-link header__menu-link--admin">Admin Dashboard</a>
                         </li>
                     <?php endif; ?>
                     <li class="header__menu-item">
-                        <a href="/gestorUsuarios/public/logout.php" class="header__menu-link header__menu-link--logout">Salir</a> <!-- Modificador -->
+                        <a href="/gestorUsuarios/public/logout.php" class="header__menu-link header__menu-link--logout">Salir</a>
                     </li>
                 <?php else: ?>
                     <li class="header__menu-item">
-                        <a href="/gestorUsuarios/public/login.php" class="header__menu-link header__menu-link--login">Login</a> <!-- Modificador -->
+                        <a href="/gestorUsuarios/public/login.php" class="header__menu-link header__menu-link--login">Login</a>
                     </li>
                 <?php endif; ?>
             </ul>

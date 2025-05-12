@@ -7,23 +7,20 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
 }
 
 require_once(__DIR__ . '/../../includes/conexion.php');
-global $conexion;
+global $conn;
 
 $id = $_GET['id'] ?? 0;
 
 if ($id == $_SESSION['id']) {
-    header("Location: /gestorUsuarios/public/admin/users.php?error=no_self_delete");
+    header("Location: /gestorUsuarios/public/admin/dashboard.php?error=no_self_delete");
     exit();
 }
 
 try {
-    $sql = "DELETE FROM usuarios WHERE id = ?";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([$id]);
-
-    header("Location: /gestorUsuarios/public/admin/users.php?success=1");
+    $conn->deleteUser($id);
+    header("Location: /gestorUsuarios/public/admin/dashboard.php?success=1");
     exit();
 } catch (PDOException $e) {
-    header("Location: /gestorUsuarios/public/admin/users.php?error=delete_failed&message=" . urlencode($e->getMessage()));
+    header("Location: /gestorUsuarios/public/admin/dashboard.php?error=delete_failed&message=" . urlencode($e->getMessage()));
     exit();
 }

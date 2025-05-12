@@ -1,12 +1,11 @@
 <?php
 require_once('../includes/auth.php');
 require_once('../includes/conexion.php');
-global $conexion;
+global $conn;
 
 try {
-    $sql = "SELECT usuario FROM usuarios WHERE id = ?";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([$_SESSION['id']]);
+
+    $stmt=$conn->getUserById($_SESSION['id']);
     $current_user = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Error al cargar datos: " . $e->getMessage());

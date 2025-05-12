@@ -13,7 +13,6 @@ if (isset($_SESSION['usuario'])) {
             <div class="col-md-6 main__content">
                 <h2 class="main__title mb-4">Registro de Usuario</h2>
 
-                <!-- Mostrar errores -->
                 <?php if (isset($_GET['error'])): ?>
                     <div class="alert main__alert main__alert--error alert-danger">
                         <?php

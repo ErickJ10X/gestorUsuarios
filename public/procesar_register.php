@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('../includes/conexion.php');
-global $conexion;
+global $conn;
 
 $usuario = $_POST['usuario'] ?? '';
 $contrasena = $_POST['contrasena'] ?? '';
@@ -12,9 +12,7 @@ if (empty($usuario) || empty($contrasena)) {
 }
 
 try {
-    $sql = "SELECT id FROM usuarios WHERE usuario = ?";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([$usuario]);
+    $stmt = $conn->verifyUsernameExist($usuario);
 
     if ($stmt->fetch()) {
         header("Location: register.php?error=usuario_existente");
@@ -22,10 +20,7 @@ try {
     }
 
     $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([$usuario, $contrasena_hash]);
+    $stmt = $conn->createUser($usuario, $contrasena_hash);
 
     $_SESSION['success'] = "¡Registro exitoso! Ahora puedes iniciar sesión.";
     header("Location: login.php");
