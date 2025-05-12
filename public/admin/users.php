@@ -11,15 +11,15 @@ global $conexion;
 require_once(__DIR__ . '/../../includes/header.php');
 ?>
 
-    <div class="container mt-4">
-        <h2 class="mb-4">Administración de Usuarios</h2>
+    <div class="container main__container mt-4">
+        <h2 class="main__title mb-4">Administración de Usuarios</h2>
 
         <?php if (isset($_GET['success'])): ?>
-            <div class="alert alert-success">Operación realizada correctamente.</div>
+            <div class="alert main__alert main__alert--success alert-success">Operación realizada correctamente.</div>
         <?php endif; ?>
 
         <?php if (isset($_GET['error'])): ?>
-            <div class="alert alert-danger">
+            <div class="alert main__alert main__alert--error alert-danger">
                 <?php
                 switch ($_GET['error']) {
                     case 'no_self_delete':
@@ -35,9 +35,9 @@ require_once(__DIR__ . '/../../includes/header.php');
             </div>
         <?php endif; ?>
 
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead class="table-dark">
+        <div class="table-responsive main__table-container">
+            <table class="table main__table table-striped">
+                <thead class="table-dark main__table-header">
                 <tr>
                     <th>ID</th>
                     <th>Usuario</th>
@@ -45,7 +45,7 @@ require_once(__DIR__ . '/../../includes/header.php');
                     <th>Acciones</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody class="main__table-body">
                 <?php
                 try {
                     $sql = "SELECT id, usuario, rol FROM usuarios ORDER BY id DESC";
@@ -53,18 +53,18 @@ require_once(__DIR__ . '/../../includes/header.php');
 
                     while ($user = $stmt->fetch(PDO::FETCH_ASSOC)):
                         ?>
-                        <tr>
-                            <td><?php echo $user['id']; ?></td>
-                            <td><?php echo htmlspecialchars($user['usuario']); ?></td>
-                            <td>
-                            <span class="badge bg-<?php echo $user['rol'] === 'admin' ? 'danger' : 'primary'; ?>">
+                        <tr class="main__table-row">
+                            <td class="main__table-cell"><?php echo $user['id']; ?></td>
+                            <td class="main__table-cell"><?php echo htmlspecialchars($user['usuario']); ?></td>
+                            <td class="main__table-cell">
+                            <span class="badge main__badge bg-<?php echo $user['rol'] === 'admin' ? 'danger' : 'primary'; ?>">
                                 <?php echo ucfirst($user['rol']); ?>
                             </span>
                             </td>
-                            <td>
+                            <td class="main__table-cell">
                                 <?php if ($_SESSION['rol'] === 'admin' && $user['rol'] !== 'admin'): ?>
                                     <a href="/gestorUsuarios/public/admin/delete_user.php?id=<?php echo $user['id']; ?>"
-                                       class="btn btn-sm btn-danger"
+                                       class="btn btn-sm btn-danger main__table-action main__table-action--delete"
                                        onclick="return confirm('¿Eliminar este usuario permanentemente?')">
                                         <i class="bi bi-trash"></i> Eliminar
                                     </a>
@@ -74,7 +74,7 @@ require_once(__DIR__ . '/../../includes/header.php');
                     <?php
                     endwhile;
                 } catch (PDOException $e) {
-                    echo "<tr><td colspan='4' class='text-danger'>Error al cargar usuarios: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
+                    echo "<tr><td colspan='4' class='text-danger main__table-error'>Error al cargar usuarios: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
                 }
                 ?>
                 </tbody>

@@ -6,8 +6,8 @@ global $conexion;
 
 <?php include('../includes/header.php'); ?>
 
-    <div class="container mt-4">
-        <h2>Mi Perfil</h2>
+    <div class="container main__container mt-4">
+        <h2 class="main__title">Mi Perfil</h2>
 
         <?php
         try {
@@ -17,19 +17,21 @@ global $conexion;
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user): ?>
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <p><strong>ID:</strong> <?php echo htmlspecialchars($user['id']); ?></p>
-                        <p><strong>Usuario:</strong> <?php echo htmlspecialchars($user['usuario']); ?></p>
-                        <p><strong>Rol:</strong> <?php echo htmlspecialchars($user['rol']); ?></p>
-                        <a href="edit_profile.php" class="btn btn-primary">Editar Perfil</a>
+                <div class="card main__card mt-3">
+                    <div class="card-body main__card-body">
+                        <p class="main__profile-detail"><strong>ID:</strong> <?php echo htmlspecialchars($user['id']); ?></p>
+                        <p class="main__profile-detail"><strong>Usuario:</strong> <?php echo htmlspecialchars($user['usuario']); ?></p>
+                        <p class="main__profile-detail"><strong>Rol:</strong> <?php echo htmlspecialchars($user['rol']); ?></p>
+                        <div class="main__profile-actions">
+                            <a href="edit_profile.php" class="btn btn-primary main__profile-button">Editar Perfil</a>
+                        </div>
                     </div>
                 </div>
             <?php else: ?>
-                <div class="alert alert-danger">Usuario no encontrado.</div>
+                <div class="alert main__alert main__alert--error alert-danger">Usuario no encontrado.</div>
             <?php endif;
         } catch (PDOException $e) {
-            echo "<div class='alert alert-danger'>Error al cargar el perfil.</div>";
+            echo "<div class='alert main__alert main__alert--error alert-danger'>Error al cargar el perfil.</div>";
         }
         ?>
     </div>

@@ -8,14 +8,14 @@ if (isset($_SESSION['usuario'])) {
 
 <?php include('../includes/header.php'); ?>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h2 class="mb-4">Registro de Usuario</h2>
+    <div class="container main__container mt-5">
+        <div class="row main__row justify-content-center">
+            <div class="col-md-6 main__content">
+                <h2 class="main__title mb-4">Registro de Usuario</h2>
 
                 <!-- Mostrar errores -->
                 <?php if (isset($_GET['error'])): ?>
-                    <div class="alert alert-danger">
+                    <div class="alert main__alert main__alert--error alert-danger">
                         <?php
                         if ($_GET['error'] == 'usuario_existente') {
                             echo "El nombre de usuario ya está en uso.";
@@ -26,21 +26,21 @@ if (isset($_SESSION['usuario'])) {
                     </div>
                 <?php endif; ?>
 
-                <form action="procesar_register.php" method="post">
-                    <div class="mb-3">
-                        <label for="usuario">Nombre de Usuario:</label>
-                        <input type="text" class="form-control" name="usuario" required>
+                <form action="procesar_register.php" method="post" class="main__form">
+                    <div class="mb-3 main__form-group">
+                        <label for="usuario" class="form-label main__form-label">Nombre de Usuario:</label>
+                        <input type="text" class="form-control main__form-input" name="usuario" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="contrasena">Contraseña:</label>
-                        <input type="password" class="form-control" name="contrasena" required>
+                    <div class="mb-3 main__form-group">
+                        <label for="contrasena" class="form-label main__form-label">Contraseña:</label>
+                        <input type="password" class="form-control main__form-input" name="contrasena" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                    <button type="submit" class="btn btn-primary main__form-button">Registrarse</button>
                 </form>
 
-                <p class="mt-3">¿Ya tienes cuenta? <a href="login.php">Inicia Sesión</a></p>
+                <p class="main__form-login mt-3">¿Ya tienes cuenta? <a href="login.php" class="main__form-link">Inicia Sesión</a></p>
             </div>
         </div>
     </div>
