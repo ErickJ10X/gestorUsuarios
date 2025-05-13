@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once(__DIR__.'/../../controller/authController.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -23,19 +24,19 @@ if (session_status() === PHP_SESSION_NONE) {
                 </li>
                 <?php if (isset($_SESSION['usuario'])): ?>
                     <li class="header__menu-item">
-                        <a href="/gestorUsuarios/public/profile.php" class="header__menu-link">Perfil</a>
+                        <a href="/gestorUsuarios/src/view/user/profile.php" class="header__menu-link">Perfil</a>
                     </li>
                     <?php if ($_SESSION['rol'] === 'admin'): ?>
                         <li class="header__menu-item">
-                            <a href="/gestorUsuarios/public/admin/dashboard.php" class="header__menu-link header__menu-link--admin">Admin Dashboard</a>
+                            <a href="/gestorUsuarios/src/view/admin/dashboard.php" class="header__menu-link header__menu-link--admin">Admin Dashboard</a>
                         </li>
                     <?php endif; ?>
                     <li class="header__menu-item">
-                        <a href="/gestorUsuarios/public/logout.php" class="header__menu-link header__menu-link--logout">Salir</a>
+                        <a href="/gestorUsuarios/src/view/auth/logout.php" class="header__menu-link header__menu-link--logout">Salir</a>
                     </li>
                 <?php else: ?>
                     <li class="header__menu-item">
-                        <a href="/gestorUsuarios/public/login.php" class="header__menu-link header__menu-link--login">Login</a>
+                        <a href="/gestorUsuarios/src/view/auth/login.php" class="header__menu-link header__menu-link--login">Login</a>
                     </li>
                 <?php endif; ?>
             </ul>

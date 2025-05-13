@@ -1,9 +1,7 @@
 <?php
 session_start();
-require_once('../includes/conexion.php');
-?>
 
-<?php include('../includes/header.php'); ?>
+include('../src/view/templates/header.php'); ?>;
 
     <div class="container main__container mt-5">
         <div class="row main__row justify-content-center">
@@ -14,10 +12,10 @@ require_once('../includes/conexion.php');
                         <div class="card-body main__card-body">
                             <p class="lead main__lead">Has iniciado sesión correctamente.</p>
                             <div class="d-flex main__actions justify-content-center gap-3 mt-4">
-                                <a href="profile.php" class="btn btn-primary main__btn main__btn--profile">
+                                <a href="../src/view/user/profile.php" class="btn btn-primary main__btn main__btn--profile">
                                     <i class="bi bi-person-circle"></i> Ver mi perfil
                                 </a>
-                                <a href="logout.php" class="btn btn-outline-danger main__btn main__btn--logout">
+                                <a href="../src/view/auth/logout.php" class="btn btn-outline-danger main__btn main__btn--logout">
                                     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
                                 </a>
                             </div>
@@ -29,10 +27,10 @@ require_once('../includes/conexion.php');
                         <div class="card-body main__card-body">
                             <p class="lead main__lead">Por favor ingrese a su cuenta</p>
                             <div class="d-flex main__actions justify-content-center gap-3 mt-4">
-                                <a href="login.php" class="btn btn-primary main__btn main__btn--login">
+                                <a href="../src/view/auth/login.php" class="btn btn-primary main__btn main__btn--login">
                                     <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
                                 </a>
-                                <a href="register.php" class="btn btn-outline-primary main__btn main__btn--register">
+                                <a href="../src/view/auth/register.php" class="btn btn-outline-primary main__btn main__btn--register">
                                     <i class="bi bi-person-plus"></i> Registrarse
                                 </a>
                             </div>
@@ -43,4 +41,4 @@ require_once('../includes/conexion.php');
         </div>
     </div>
 
-<?php include('../includes/footer.php'); ?>
+<?php include('../src/view/templates/footer.php'); ?>

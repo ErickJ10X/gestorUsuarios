@@ -1,14 +1,8 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
-    header("Location: /gestorUsuarios/public/login.php");
-    exit();
-}
-
-require_once(__DIR__ . '/../../includes/conexion.php');
-global $conn;
-require_once(__DIR__ . '/../../includes/header.php');
+require_once('../templates/header.php');
+global $authController;
+$stmt = $authController->viewAdminDashboard();
 ?>
 
     <div class="container main__container mt-4">
@@ -48,7 +42,6 @@ require_once(__DIR__ . '/../../includes/header.php');
                 <tbody class="main__table-body">
                 <?php
                 try {
-                    $stmt = $conn->getAllUser();
                     while ($user = $stmt->fetch(PDO::FETCH_ASSOC)):
                         ?>
                         <tr class="main__table-row">
@@ -61,7 +54,7 @@ require_once(__DIR__ . '/../../includes/header.php');
                             </td>
                             <td class="main__table-cell">
                                 <?php if ($_SESSION['rol'] === 'admin' && $user['rol'] !== 'admin'): ?>
-                                    <a href="/gestorUsuarios/public/admin/delete_user.php?id=<?php echo $user['id']; ?>"
+                                    <a href="../admin/dashboard.php?username=<?php echo $user['usuario']; ?>"
                                        class="btn btn-sm btn-danger main__table-action main__table-action--delete"
                                        onclick="return confirm('¿Eliminar este usuario permanentemente?')">
                                         <i class="bi bi-trash"></i> Eliminar
@@ -80,4 +73,4 @@ require_once(__DIR__ . '/../../includes/header.php');
         </div>
     </div>
 
-<?php include(__DIR__ . '/../../includes/footer.php'); ?>
+<?php include('../templates/footer.php'); ?>

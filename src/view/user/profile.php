@@ -1,10 +1,8 @@
 <?php
-require_once('../includes/auth.php');
-require_once('../includes/conexion.php');
-global $conn;
+include('../templates/header.php');
+global $authController;
+$authController->viewProfile();
 ?>
-
-<?php include('../includes/header.php'); ?>
 
     <div class="container main__container mt-4">
         <h2 class="main__title">Mi Perfil</h2>
@@ -17,9 +15,12 @@ global $conn;
             if ($user): ?>
                 <div class="card main__card mt-3">
                     <div class="card-body main__card-body">
-                        <p class="main__profile-detail"><strong>ID:</strong> <?php echo htmlspecialchars($user['id']); ?></p>
-                        <p class="main__profile-detail"><strong>Usuario:</strong> <?php echo htmlspecialchars($user['usuario']); ?></p>
-                        <p class="main__profile-detail"><strong>Rol:</strong> <?php echo htmlspecialchars($user['rol']); ?></p>
+                        <p class="main__profile-detail">
+                            <strong>ID:</strong> <?php echo htmlspecialchars($user['id']); ?></p>
+                        <p class="main__profile-detail">
+                            <strong>Usuario:</strong> <?php echo htmlspecialchars($user['usuario']); ?></p>
+                        <p class="main__profile-detail">
+                            <strong>Rol:</strong> <?php echo htmlspecialchars($user['rol']); ?></p>
                         <div class="main__profile-actions">
                             <a href="edit_profile.php" class="btn btn-primary main__profile-button">Editar Perfil</a>
                         </div>
@@ -34,4 +35,4 @@ global $conn;
         ?>
     </div>
 
-<?php include('../includes/footer.php'); ?>
+<?php include('../templates/footer.php'); ?>

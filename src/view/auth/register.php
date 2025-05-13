@@ -4,9 +4,10 @@ if (isset($_SESSION['usuario'])) {
     header("Location: index.php");
     exit();
 }
-?>
-
-<?php include('../includes/header.php'); ?>
+include('../templates/header.php');
+global $authController;
+$authController->register();
+?>;
 
     <div class="container main__container mt-5">
         <div class="row main__row justify-content-center">
@@ -25,7 +26,7 @@ if (isset($_SESSION['usuario'])) {
                     </div>
                 <?php endif; ?>
 
-                <form action="procesar_register.php" method="post" class="main__form">
+                <form action="../../../public/procesar_register.php" method="post" class="main__form">
                     <div class="mb-3 main__form-group">
                         <label for="usuario" class="form-label main__form-label">Nombre de Usuario:</label>
                         <input type="text" class="form-control main__form-input" name="usuario" required>
@@ -44,4 +45,4 @@ if (isset($_SESSION['usuario'])) {
         </div>
     </div>
 
-<?php include('../includes/footer.php'); ?>
+<?php include('../templates/footer.php'); ?>
