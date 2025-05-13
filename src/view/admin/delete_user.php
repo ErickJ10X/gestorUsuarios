@@ -6,7 +6,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
     exit();
 }
 
-require_once(__DIR__ . '/../../includes/conexion.php');
+require_once(__DIR__ . '/../../src/service/userService.php');
 global $conn;
 
 $id = $_GET['id'] ?? 0;

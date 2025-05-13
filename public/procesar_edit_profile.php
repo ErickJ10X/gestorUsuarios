@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('../includes/auth.php');
-require_once('../includes/conexion.php');
+require_once('../src/service/userService.php');
 global $conn;
 
 $usuario = $_POST['usuario'] ?? '';
