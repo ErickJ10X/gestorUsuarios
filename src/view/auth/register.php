@@ -7,6 +7,7 @@ $authGuard = new AuthGuard();
 $authGuard->requireNoAuth();
 
 include('../templates/header.php');
+$authController = new AuthController();
 $authController->register();
 ?>
 
@@ -31,13 +32,28 @@ $authController->register();
 
                 <form action="/gestorUsuarios/src/view/auth/register.php" method="post" class="main__form">
                     <div class="mb-3 main__form-group">
+                        <label for="nombre" class="form-label main__form-label">Nombre:</label>
+                        <input type="text" class="form-control main__form-input" name="nombre" required>
+                    </div>
+                    <div class="mb-3 main__form-group">
+                        <label for="apellido" class="form-label main__form-label">Apellido:</label>
+                        <input type="text" class="form-control main__form-input" name="apellido" required>
+                    </div>
+                    <div class="mb-3 main__form-group">
                         <label for="usuario" class="form-label main__form-label">Nombre de Usuario:</label>
                         <input type="text" class="form-control main__form-input" name="usuario" required>
                     </div>
-
                     <div class="mb-3 main__form-group">
-                        <label for="contrasena" class="form-label main__form-label">Contraseña:</label>
+                        <label for="email" class="form-label main__form-label">Email:</label>
+                        <input type="email" class="form-control main__form-input" name="email" required>
+                    </div>
+                    <div class="mb-3 main__form-group">
+                        <label for="contrasena" class="form-label main__form-label">Contraseña: (mínimo 8 caracteres, al menos una letra mayuscula, una letra minuscula, un numero y un caracter especial)</label>
                         <input type="password" class="form-control main__form-input" name="contrasena" required>
+                    </div>
+                    <div class="mb-3 main__form-group">
+                        <label for="confirmar_contrasena" class="form-label main__form-label">Confirmar Contraseña:</label>
+                        <input type="password" class="form-control main__form-input" name="confirmar_contrasena" required>
                     </div>
 
                     <button type="submit" class="btn btn-primary main__form-button">Registrarse</button>
