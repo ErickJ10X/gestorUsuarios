@@ -27,16 +27,7 @@ class UserService{
         }
     }
 
-    public function updateUser($currentUsername, $newUsername, $contrasena): bool{
-        try {
-            $hashedPassword = password_hash($contrasena, PASSWORD_DEFAULT);
-            $sql = "UPDATE usuarios SET usuario = ?, contrasena = ? WHERE usuario = ?";
-            $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$newUsername, $hashedPassword, $currentUsername]);
-        } catch (PDOException $e) {
-            throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
-        }
-    }
+    // Eliminamos updateUser ya que está duplicado con updateUserWithPassword
 
     public function updateUserWithoutPassword($userId, $newUsername): bool{
         try {
@@ -123,4 +114,3 @@ class UserService{
         }
     }
 }
-

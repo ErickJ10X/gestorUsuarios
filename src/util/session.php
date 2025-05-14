@@ -5,43 +5,25 @@ class Session {
             session_start();
         }
     }
-
-    public function set($key, $value): void {
+    
+    public function set(string $key, $value): void {
         $_SESSION[$key] = $value;
     }
-
-    public function get($key) {
+    
+    public function get(string $key) {
         return $_SESSION[$key] ?? null;
     }
-
-    public function remove($key): void {
-        if (isset($_SESSION[$key])) {
-            unset($_SESSION[$key]);
-        }
-    }
-
+    
     public function destroy(): void {
-        $_SESSION = [];
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
+        session_unset();
         session_destroy();
     }
-
+    
     public function isAuthenticated(): bool {
-        return isset($_SESSION['usuario']);
+        return isset($_SESSION['id']) && !empty($_SESSION['id']);
     }
-
+    
     public function isAdmin(): bool {
-        return $this->isAuthenticated() && ($_SESSION['rol'] === 'admin');
+        return $this->isAuthenticated() && $this->get('rol') === 'admin';
     }
 }

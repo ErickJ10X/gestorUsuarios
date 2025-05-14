@@ -77,7 +77,7 @@ class UserController{
             throw new Exception("El nombre de usuario es obligatorio");
         }
         
-        if ($username === $this->session->get('username')) {
+        if ($username === $this->session->get('usuario')) {
             throw new Exception("No puedes eliminar tu propio usuario");
         }
         
