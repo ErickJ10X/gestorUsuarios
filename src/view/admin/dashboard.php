@@ -7,7 +7,7 @@ $authGuard = new AuthGuard();
 $authGuard->requireAdmin();
 
 include('../templates/header.php');
-
+$authController = new authController();
 $stmt = $authController->viewAdminDashboard();
 ?>
 

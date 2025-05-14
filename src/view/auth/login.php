@@ -5,7 +5,7 @@ require_once(__DIR__ . '/../../util/authGuard.php');
 
 $authGuard = new AuthGuard();
 $authGuard->requireNoAuth();
-
+$authController = new authController();
 $authController->login();
 
 include('../templates/header.php');
