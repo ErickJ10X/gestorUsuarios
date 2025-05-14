@@ -27,35 +27,22 @@ class UserService{
         }
     }
 
-    // Eliminamos updateUser ya que está duplicado con updateUserWithPassword
-
-    public function updateUserWithoutPassword($userId, $newUsername): bool{
+    public function updateUserWithoutPassword($name,$surname,$username,$email,$userId): bool{
         try {
-            $sql = "UPDATE usuarios SET usuario = ? WHERE id = ?";
+            $sql = "UPDATE usuarios SET nombre = ?,apellido = ?, usuario = ?, email = ? WHERE id = ?";
             $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$newUsername, $userId]);
+            return $stmt->execute([$name,$surname,$username,$email,$userId]);
         } catch (PDOException $e) {
             throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
         }
     }
 
-    public function updatePasswordOnly($userId, $password): bool{
+    public function updateUserWithPassword($name,$surname,$username,$email,$password,$userId): bool{
         try {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "UPDATE usuarios SET contrasena = ? WHERE id = ?";
+            $sql = "UPDATE usuarios SET nombre = ?, apellido = ?, usuario = ?, email=?, contrasena = ? WHERE id = ?";
             $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$hashedPassword, $userId]);
-        } catch (PDOException $e) {
-            throw new Exception("Error al actualizar la contraseña: " . $e->getMessage());
-        }
-    }
-
-    public function updateUserWithPassword($userId, $newUsername, $password): bool{
-        try {
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "UPDATE usuarios SET usuario = ?, contrasena = ? WHERE id = ?";
-            $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$newUsername, $hashedPassword, $userId]);
+            return $stmt->execute([$name,$surname,$username,$email,$hashedPassword,$userId]);
         } catch (PDOException $e) {
             throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
         }
@@ -72,12 +59,23 @@ class UserService{
         }
     }
 
-    public function createUser($usuario, $contrasena): bool{
+    public function verifyEmailExist($email): false|PDOStatement{
         try {
-            $hashedPassword = password_hash($contrasena, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO usuarios (usuario, contrasena, rol) VALUES (?, ?, 'usuario')";
+            $sql = "SELECT email FROM usuarios WHERE email = ?";
             $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$usuario, $hashedPassword]);
+            $stmt->execute([$email]);
+            return $stmt;
+        } catch (PDOException $e) {
+            throw new Exception("Error al verificar el email: " . $e->getMessage());
+        }
+    }
+
+    public function createUser($name,$surname,$username,$email,$password): bool{
+        try {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "INSERT INTO usuarios (nombre,apellido,usuario,email,contrasena) VALUES (?,?,?,?,?)";
+            $stmt = $this->conexion->prepare($sql);
+            return $stmt->execute([$name,$surname,$username,$email, $hashedPassword]);
         } catch (PDOException $e) {
             throw new Exception("Error al crear el usuario: " . $e->getMessage());
         }
@@ -105,7 +103,7 @@ class UserService{
     
     public function getUserByUsername($username): array|false {
         try {
-            $sql = "SELECT * FROM usuarios WHERE usuario = ?";
+            $sql = "SELECT nombre,apellido,usuario,email,rol FROM usuarios WHERE usuario = ?";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$username]);
             return $stmt->fetch(PDO::FETCH_ASSOC);

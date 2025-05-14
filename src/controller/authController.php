@@ -19,7 +19,7 @@ class AuthController {
         $this->authGuard->requireNoAuth();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['usuario'] ?? '';
+            $username = $this->sanitizar($_POST['usuario'] ?? '');
             $password = $_POST['contrasena'] ?? '';
 
             try {
@@ -44,11 +44,20 @@ class AuthController {
         $this->authGuard->requireNoAuth();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['usuario'] ?? '';
+            $name = $this->sanitizar($_POST['nombre'] ?? '');
+            $surname = $this->sanitizar($_POST['apellido'] ?? '');
+            $username = $this->sanitizar($_POST['usuario'] ?? '');
+            $email = $this->sanitizar($_POST['email'] ?? '');
             $password = $_POST['contrasena'] ?? '';
+            $confirmPassword = $_POST['confirmar_contrasena'] ?? '';
+
+            if (!$this->confirmPassword($password, $confirmPassword)) {
+                Redirect::withError('/gestorUsuarios/src/view/auth/register.php', 'Las contraseñas no coinciden');
+                return;
+            }
 
             try {
-                $this->userController->register($username, $password);
+                $this->userController->register($name,$surname,$username,$email, $password);
                 Redirect::withSuccess('/gestorUsuarios/src/view/auth/login.php', 'registered');
             } catch (Exception $e) {
                 Redirect::withError('/gestorUsuarios/src/view/auth/register.php', $e->getMessage());
@@ -60,11 +69,14 @@ class AuthController {
         $this->authGuard->requireAuth();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['usuario'] ?? '';
+            $name = $this->sanitizar($_POST['nombre'] ?? '');
+            $surname = $this->sanitizar($_POST['apellido'] ?? '');
+            $username = $this->sanitizar($_POST['usuario'] ?? '');
+            $email = $this->sanitizar($_POST['email'] ?? '');
             $password = $_POST['contrasena'] ?? '';
 
             try {
-                $this->userController->updateProfile($username, $password);
+                $this->userController->updateProfile($name, $surname, $username, $email, $password);
                 Redirect::withSuccess('/gestorUsuarios/src/view/user/profile.php', 'updated');
             } catch (Exception $e) {
                 Redirect::withError('/gestorUsuarios/src/view/user/edit_profile.php', $e->getMessage());
@@ -93,7 +105,15 @@ class AuthController {
         
         return $this->userController->getAllUsers();
     }
-}
 
-$authController = new AuthController();
+    public function sanitizar($input): string{
+        $input = trim($input);
+        $input = stripslashes($input);
+        return htmlspecialchars($input);
+    }
+
+    public function confirmPassword($password, $confirmPassword): bool{
+        return $password === $confirmPassword;
+    }
+}
 

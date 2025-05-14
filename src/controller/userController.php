@@ -1,17 +1,20 @@
 <?php
-require_once(__DIR__.'/../service/userService.php');
-include_once(__DIR__.'/../util/session.php');
+require_once(__DIR__ . '/../service/userService.php');
+include_once(__DIR__ . '/../util/session.php');
 
-class UserController{
+class UserController
+{
     private UserService $userService;
     private Session $session;
-    
-    public function __construct(){
+
+    public function __construct()
+    {
         $this->userService = new UserService();
         $this->session = new Session();
     }
 
-    public function login($username, $password): array|bool {
+    public function login($username, $password): array|bool
+    {
         if (empty($username) || empty($password)) {
             throw new Exception("El nombre de usuario y la contraseña son obligatorios");
         }
@@ -25,15 +28,16 @@ class UserController{
         $_SESSION['id'] = $user['id'];
         $_SESSION['usuario'] = $user['usuario'];
         $_SESSION['rol'] = $user['rol'];
-        
+
         $this->session->set('id', $user['id']);
         $this->session->set('usuario', $user['usuario']);
         $this->session->set('rol', $user['rol']);
-        
+
         return $user;
     }
 
-    public function register($username, $password): void{
+    public function register($name, $surname, $username, $email, $password): void
+    {
         if (empty($username) || empty($password)) {
             throw new Exception("El nombre de usuario y la contraseña son obligatorios");
         }
@@ -41,54 +45,110 @@ class UserController{
         if ($this->userService->verifyUserExist($username)) {
             throw new Exception("El nombre de usuario ya existe");
         }
-        $this->userService->createUser($username, $password);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("El email no es válido");
+        }
+        if ($this->userService->verifyEmailExist($email)->rowCount() > 0) {
+            throw new Exception("El email ya está en uso");
+        }
+        $passwordValidation = $this->validatePassword($password);
+        if ($passwordValidation !== true) {
+            throw new Exception(implode(", ", $passwordValidation));
+        }
+        $this->userService->createUser($name, $surname, $username, $email, $password);
     }
 
-    public function updateProfile($username, $password): void{
-        if (empty($username)) {
-            throw new Exception("El nombre de usuario es obligatorio");
-        }
-
+    public function updateProfile($name, $surname, $username, $email, $password): void
+    {
         $currentUsername = $_SESSION['usuario'];
         $userId = $_SESSION['id'];
 
+        if (empty($name)) {
+            throw new Exception("El nombre es obligatorio");
+        }
+        if (empty($surname)) {
+            throw new Exception("El apellido es obligatorio");
+        }
+        if (empty($username)) {
+            throw new Exception("El nombre de usuario es obligatorio");
+        }
         if ($username !== $currentUsername && $this->userService->verifyUserExist($username)) {
             throw new Exception("El nombre de usuario ya existe");
         }
-
-        if ($username !== $currentUsername && !empty($password)) {
-            $this->userService->updateUserWithPassword($userId, $username, $password);
-        } else if ($username !== $currentUsername) {
-            $this->userService->updateUserWithoutPassword($userId, $username);
-        } else if (!empty($password)) {
-            $this->userService->updatePasswordOnly($userId, $password);
-        } else {
-            throw new Exception("No se han realizado cambios");
+        if (empty($email)) {
+            throw new Exception("El email es obligatorio");
         }
-        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("El email no es válido");
+        }
+        $currentEmail = $this->userService->verifyEmailExist($email)->fetch(PDO::FETCH_ASSOC);
+        if ($currentEmail && $currentEmail['email'] !== $email) {
+            throw new Exception("El email ya está en uso");
+        }
+        if (!empty($password)) {
+            $passwordValidation = $this->validatePassword($password);
+            if ($passwordValidation !== true) {
+                throw new Exception(implode(", ", $passwordValidation));
+            }
+        }
+
+        if (!empty($password)) {
+            $this->userService->updateUserWithPassword($name, $surname, $username, $email, $password, $userId);
+        } else {
+            $this->userService->updateUserWithoutPassword($name, $surname, $username, $email, $userId);
+        }
+
         if ($username !== $currentUsername) {
             $_SESSION['usuario'] = $username;
             $this->session->set('usuario', $username);
         }
     }
-    
-    public function deleteUser($username): void{
+
+    public function deleteUser($username): void
+    {
         if (empty($username)) {
             throw new Exception("El nombre de usuario es obligatorio");
         }
-        
+
         if ($username === $this->session->get('usuario')) {
             throw new Exception("No puedes eliminar tu propio usuario");
         }
-        
+
         if (!$this->userService->verifyUserExist($username)) {
             throw new Exception("El usuario no existe");
         }
-        
+
         $this->userService->deleteUser($username);
     }
-    
-    public function getAllUsers(): false|PDOStatement{
+
+    public function getAllUsers(): false|PDOStatement
+    {
         return $this->userService->getAllUsers();
+    }
+
+    public function validatePassword($password): array|bool
+    {
+        $errors = [];
+        if (strlen($password) < 8) {
+            return array_merge($errors, ["La contraseña debe tener al menos 8 caracteres."]);
+        }
+        if (!preg_match('/[A-Z]/', $password)) {
+            return array_merge($errors, ["La contraseña debe tener al menos una letra mayúscula."]);
+        }
+        if (!preg_match('/[a-z]/', $password)) {
+            return array_merge($errors, ["La contraseña debe tener al menos una letra minúscula."]);
+        }
+        if (!preg_match('/[0-9]/', $password)) {
+            return array_merge($errors, ["La contraseña debe tener al menos un número."]);
+        }
+        if (!preg_match('/[\W_]/', $password)) {
+            return array_merge($errors, ["La contraseña debe tener al menos un carácter especial."]);
+        }
+        return true;
+    }
+
+    public function confirmInput($input, $confirmInput): bool
+    {
+        return $input === $confirmInput;
     }
 }
