@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__ . '/../../config/database.php');
 
-class userService{
+class UserService{
     private ?PDO $conexion;
 
     public function __construct(){
@@ -13,7 +13,7 @@ class userService{
             $sql = "SELECT id, usuario, rol FROM usuarios ORDER BY id DESC";
             return $this->conexion->query($sql);
         } catch (PDOException $e) {
-            die("Error al cargar los usuarios: " . $e->getMessage());;
+            throw new Exception("Error al cargar los usuarios: " . $e->getMessage());
         }
     }
 
@@ -21,26 +21,52 @@ class userService{
         try {
             $sql = "DELETE FROM usuarios WHERE usuario = ?";
             $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$username]);;
+            return $stmt->execute([$username]);
         } catch (PDOException $e) {
-            die("Error al eliminar el usuario: " . $e->getMessage());
+            throw new Exception("Error al eliminar el usuario: " . $e->getMessage());
         }
     }
 
-    public function updateUser($usuario, $contrasena): bool{
+    public function updateUser($currentUsername, $newUsername, $contrasena): bool{
         try {
-            $sql = "SELECT id FROM usuarios WHERE usuario = ?";
+            $hashedPassword = password_hash($contrasena, PASSWORD_DEFAULT);
+            $sql = "UPDATE usuarios SET usuario = ?, contrasena = ? WHERE usuario = ?";
             $stmt = $this->conexion->prepare($sql);
-            $stmt->execute([$usuario]);
-            $user = $stmt->fetch();
-            if ($user) {
-                $sql = "UPDATE usuarios SET usuario = ?, contrasena = ? WHERE id = ?";
-                $stmt = $this->conexion->prepare($sql);
-                return $stmt->execute([$usuario, $contrasena, $user['id']]);
-            }
-            return false;
+            return $stmt->execute([$newUsername, $hashedPassword, $currentUsername]);
         } catch (PDOException $e) {
-            die("Error al actualizar el usuario: " . $e->getMessage());
+            throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
+        }
+    }
+
+    public function updateUserWithoutPassword($userId, $newUsername): bool{
+        try {
+            $sql = "UPDATE usuarios SET usuario = ? WHERE id = ?";
+            $stmt = $this->conexion->prepare($sql);
+            return $stmt->execute([$newUsername, $userId]);
+        } catch (PDOException $e) {
+            throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
+        }
+    }
+
+    public function updatePasswordOnly($userId, $password): bool{
+        try {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "UPDATE usuarios SET contrasena = ? WHERE id = ?";
+            $stmt = $this->conexion->prepare($sql);
+            return $stmt->execute([$hashedPassword, $userId]);
+        } catch (PDOException $e) {
+            throw new Exception("Error al actualizar la contraseña: " . $e->getMessage());
+        }
+    }
+
+    public function updateUserWithPassword($userId, $newUsername, $password): bool{
+        try {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "UPDATE usuarios SET usuario = ?, contrasena = ? WHERE id = ?";
+            $stmt = $this->conexion->prepare($sql);
+            return $stmt->execute([$newUsername, $hashedPassword, $userId]);
+        } catch (PDOException $e) {
+            throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
         }
     }
 
@@ -49,24 +75,20 @@ class userService{
             $sql = "SELECT id FROM usuarios WHERE usuario = ?";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$usuario]);
-            if ($stmt->rowCount() > 0) {
-                return true;
-            }
-            return false;
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
-            die("Error al verificar el usuario: " . $e->getMessage());
+            throw new Exception("Error al verificar el usuario: " . $e->getMessage());
         }
-
     }
 
     public function createUser($usuario, $contrasena): bool{
         try {
-            $sql = "INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)";
+            $hashedPassword = password_hash($contrasena, PASSWORD_DEFAULT);
+            $sql = "INSERT INTO usuarios (usuario, contrasena, rol) VALUES (?, ?, 'usuario')";
             $stmt = $this->conexion->prepare($sql);
-            $contrasena = password_hash($contrasena, PASSWORD_DEFAULT);
-            return $stmt->execute([$usuario, $contrasena]);
+            return $stmt->execute([$usuario, $hashedPassword]);
         } catch (PDOException $e) {
-            die("Error al crear el usuario: " . $e->getMessage());
+            throw new Exception("Error al crear el usuario: " . $e->getMessage());
         }
     }
 
@@ -75,17 +97,30 @@ class userService{
             $sql = "SELECT * FROM usuarios WHERE usuario = ?";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$usuario]);
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($contrasena, $user['contrasena'])) {
                 return [
+                    'id' => $user['id'],
                     'usuario' => $user['usuario'],
                     'rol' => $user['rol']
                 ];
             }
             return false;
         } catch (PDOException $e) {
-            die("Error al verificar el usuario: " . $e->getMessage());
+            throw new Exception("Error al verificar el login: " . $e->getMessage());
+        }
+    }
+    
+    public function getUserByUsername($username): array|false {
+        try {
+            $sql = "SELECT * FROM usuarios WHERE usuario = ?";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$username]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error al obtener el usuario: " . $e->getMessage());
         }
     }
 }
+

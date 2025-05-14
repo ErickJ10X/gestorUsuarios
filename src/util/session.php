@@ -1,22 +1,27 @@
 <?php
 class Session {
-    public function __construct(){
+    public function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    public function set($key, $value): void
-    {
+    public function set($key, $value): void {
         $_SESSION[$key] = $value;
     }
+
     public function get($key) {
         return $_SESSION[$key] ?? null;
     }
-    public static function destroy(): void
-    {
-        $_SESSION = [];
 
+    public function remove($key): void {
+        if (isset($_SESSION[$key])) {
+            unset($_SESSION[$key]);
+        }
+    }
+
+    public function destroy(): void {
+        $_SESSION = [];
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
@@ -29,26 +34,14 @@ class Session {
                 $params["httponly"]
             );
         }
-
         session_destroy();
     }
 
-    public static function isAuthenticated(): bool
-    {
-        return isset($_SESSION['username']);
+    public function isAuthenticated(): bool {
+        return isset($_SESSION['usuario']);
     }
 
-    public static function isAdmin(): bool
-    {
-        return self::isAuthenticated() && isset($_SESSION['admin']) && $_SESSION['admin'];
+    public function isAdmin(): bool {
+        return $this->isAuthenticated() && ($_SESSION['rol'] === 'admin');
     }
-
-    public static function setFlash($type, $message): void
-    {
-        $_SESSION['flash'] = [
-            'type' => $type,
-            'message' => $message
-        ];
-    }
-
 }
