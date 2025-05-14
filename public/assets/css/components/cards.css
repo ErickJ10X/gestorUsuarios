@@ -1,0 +1,54 @@
+.card {
+    background: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--glass-effect);
+    overflow: hidden;
+    transition: all var(--transition-speed) var(--transition-ease);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glow-primary);
+}
+
+.card-body {
+    padding: var(--spacing-lg);
+}
+
+.main__card {
+    background: linear-gradient(
+        45deg,
+        var(--color-surface),
+        rgba(44, 24, 84, 0.8)
+    );
+    backdrop-filter: blur(10px);
+}
+
+.main__card .card-body {
+    padding: var(--spacing-xl);
+}
+
+.main__card .main__lead {
+    margin-bottom: var(--spacing-xl);
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+}
+
+.main__profile-detail {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.main__profile-detail strong {
+    color: var(--color-accent);
+}
+
+.main__profile-actions {
+    margin-top: var(--spacing-lg);
+}
+
+.main__actions {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--glass-effect);
+}

@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(110, 59, 255, 0.1) 0%, transparent 60%),
+        radial-gradient(circle at 100% 0%, rgba(0, 255, 242, 0.1) 0%, transparent 50%);
+}
+
+main {
+    flex: 1 0 auto;
+    padding-bottom: var(--spacing-xl);
+}
+
+.container {
+    padding: var(--spacing-md);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: all var(--transition-speed) var(--transition-ease);
+}
+
+a:hover {
+    color: var(--color-primary);
+    text-shadow: var(--glow-primary);
+}
