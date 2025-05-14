@@ -1,7 +1,13 @@
 <?php
 session_start();
-require_once('../templates/header.php');
-global $authController;
+require_once(__DIR__ . '/../../controller/authController.php');
+require_once(__DIR__ . '/../../util/authGuard.php');
+
+$authGuard = new AuthGuard();
+$authGuard->requireAdmin();
+
+include('../templates/header.php');
+
 $stmt = $authController->viewAdminDashboard();
 ?>
 
@@ -15,15 +21,19 @@ $stmt = $authController->viewAdminDashboard();
         <?php if (isset($_GET['error'])): ?>
             <div class="alert main__alert main__alert--error alert-danger">
                 <?php
-                switch ($_GET['error']) {
-                    case 'no_self_delete':
-                        echo "No puedes eliminarte a ti mismo.";
-                        break;
-                    case 'delete_failed':
-                        echo "Error al eliminar usuario: " . ($_GET['message'] ?? '');
-                        break;
-                    default:
-                        echo "Error desconocido.";
+                if (isset($_GET['message'])) {
+                    echo htmlspecialchars(urldecode($_GET['message']));
+                } else {
+                    switch ($_GET['error']) {
+                        case 'no_self_delete':
+                            echo "No puedes eliminarte a ti mismo.";
+                            break;
+                        case 'delete_failed':
+                            echo "Error al eliminar usuario: " . ($_GET['message'] ?? '');
+                            break;
+                        default:
+                            echo "Error desconocido.";
+                    }
                 }
                 ?>
             </div>
@@ -53,12 +63,15 @@ $stmt = $authController->viewAdminDashboard();
                             </span>
                             </td>
                             <td class="main__table-cell">
-                                <?php if ($_SESSION['rol'] === 'admin' && $user['rol'] !== 'admin'): ?>
-                                    <a href="../admin/dashboard.php?username=<?php echo $user['usuario']; ?>"
-                                       class="btn btn-sm btn-danger main__table-action main__table-action--delete"
-                                       onclick="return confirm('¿Eliminar este usuario permanentemente?')">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </a>
+                                <?php if ($user['usuario'] != $_SESSION['usuario']): ?>
+                                    <form action="/gestorUsuarios/src/view/admin/dashboard.php" method="post" style="display: inline;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="username" value="<?php echo htmlspecialchars($user['usuario']); ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger main__table-action main__table-action--delete"
+                                                onclick="return confirm('¿Eliminar este usuario permanentemente?')">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </form>
                                 <?php endif; ?>
                             </td>
                         </tr>

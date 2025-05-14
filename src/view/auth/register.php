@@ -1,13 +1,14 @@
 <?php
 session_start();
-if (isset($_SESSION['usuario'])) {
-    header("Location: index.php");
-    exit();
-}
+require_once(__DIR__ . '/../../controller/authController.php');
+require_once(__DIR__ . '/../../util/authGuard.php');
+
+$authGuard = new AuthGuard();
+$authGuard->requireNoAuth();
+
 include('../templates/header.php');
-global $authController;
 $authController->register();
-?>;
+?>
 
     <div class="container main__container mt-5">
         <div class="row main__row justify-content-center">
@@ -17,7 +18,9 @@ $authController->register();
                 <?php if (isset($_GET['error'])): ?>
                     <div class="alert main__alert main__alert--error alert-danger">
                         <?php
-                        if ($_GET['error'] == 'usuario_existente') {
+                        if (isset($_GET['message'])) {
+                            echo htmlspecialchars(urldecode($_GET['message']));
+                        } elseif ($_GET['error'] == 'usuario_existente') {
                             echo "El nombre de usuario ya está en uso.";
                         } else {
                             echo "Error en el registro.";
@@ -26,7 +29,7 @@ $authController->register();
                     </div>
                 <?php endif; ?>
 
-                <form action="../../../public/procesar_register.php" method="post" class="main__form">
+                <form action="/gestorUsuarios/src/view/auth/register.php" method="post" class="main__form">
                     <div class="mb-3 main__form-group">
                         <label for="usuario" class="form-label main__form-label">Nombre de Usuario:</label>
                         <input type="text" class="form-control main__form-input" name="usuario" required>
@@ -40,7 +43,7 @@ $authController->register();
                     <button type="submit" class="btn btn-primary main__form-button">Registrarse</button>
                 </form>
 
-                <p class="main__form-login mt-3">¿Ya tienes cuenta? <a href="login.php" class="main__form-link">Inicia Sesión</a></p>
+                <p class="main__form-login mt-3">¿Ya tienes cuenta? <a href="/gestorUsuarios/src/view/auth/login.php" class="main__form-link">Inicia Sesión</a></p>
             </div>
         </div>
     </div>
