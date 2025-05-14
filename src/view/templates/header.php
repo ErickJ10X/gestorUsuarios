@@ -2,7 +2,6 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once(__DIR__.'/../../controller/authController.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -11,6 +10,7 @@ require_once(__DIR__.'/../../controller/authController.php');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Usuarios</title>
     <link rel="stylesheet" href="/gestorUsuarios/public/assets/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <header class="header">
@@ -26,7 +26,7 @@ require_once(__DIR__.'/../../controller/authController.php');
                     <li class="header__menu-item">
                         <a href="/gestorUsuarios/src/view/user/profile.php" class="header__menu-link">Perfil</a>
                     </li>
-                    <?php if ($_SESSION['rol'] === 'admin'): ?>
+                    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
                         <li class="header__menu-item">
                             <a href="/gestorUsuarios/src/view/admin/dashboard.php" class="header__menu-link header__menu-link--admin">Admin Dashboard</a>
                         </li>
