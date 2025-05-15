@@ -63,7 +63,7 @@ $stmt = $authController->viewAdminDashboard();
                             </span>
                             </td>
                             <td class="main__table-cell">
-                                <?php if ($user['usuario'] != $_SESSION['usuario']): ?>
+                                <?php if ($user['usuario'] != $_SESSION['usuario'] && $user['rol'] !== 'admin' ): ?>
                                     <form action="/gestorUsuarios/src/view/admin/dashboard.php" method="post" style="display: inline;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="username" value="<?php echo htmlspecialchars($user['usuario']); ?>">
