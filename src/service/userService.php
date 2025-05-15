@@ -82,6 +82,7 @@ class UserService{
     }
 
     public function verifyLogin($usuario, $contrasena): false|array{
+
         try {
             $sql = "SELECT * FROM usuarios WHERE usuario = ?";
             $stmt = $this->conexion->prepare($sql);
@@ -89,6 +90,12 @@ class UserService{
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($contrasena, $user['contrasena'])) {
+                if (password_needs_rehash($user['contrasena'], PASSWORD_DEFAULT)) {
+                    $hashedPassword = password_hash($contrasena, PASSWORD_DEFAULT);
+                    $sql = "UPDATE usuarios SET contrasena = ? WHERE usuario = ?";
+                    $stmt = $this->conexion->prepare($sql);
+                    $stmt->execute([$hashedPassword, $usuario]);
+                }
                 return [
                     'id' => $user['id'],
                     'usuario' => $user['usuario'],
@@ -109,6 +116,17 @@ class UserService{
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             throw new Exception("Error al obtener el usuario: " . $e->getMessage());
+        }
+    }
+
+    public function registerAccessAttempt($ip,$username,$success): bool {
+        try {
+            $sql = "INSERT INTO access_logs (ip,username,result) VALUES (?, ?, ?)";
+            $stmt = $this->conexion->prepare($sql);
+            return $stmt->execute([$ip, $username, $success]);
+        } catch (PDOException $e) {
+            throw new Exception("Error al registrar el intento de acceso: " . $e->getMessage());
+            return false;
         }
     }
 }

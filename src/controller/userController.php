@@ -19,11 +19,18 @@ class UserController
             throw new Exception("El nombre de usuario y la contraseña son obligatorios");
         }
 
+        $ip = $this->getClientIp();
+
         $user = $this->userService->verifyLogin($username, $password);
 
         if (!$user) {
+            $this->userService->registerAccessAttempt($ip,$username,false);
             throw new Exception("Nombre de usuario o contraseña incorrectos");
         }
+
+        $this->userService->registerAccessAttempt($ip,$username,true);
+
+        session_regenerate_id(true);
 
         $_SESSION['id'] = $user['id'];
         $_SESSION['usuario'] = $user['usuario'];
@@ -147,8 +154,16 @@ class UserController
         return true;
     }
 
-    public function confirmInput($input, $confirmInput): bool
+    public function getClientIp(): string
     {
-        return $input === $confirmInput;
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            return trim($ips[0]);
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+        return 'unknown';
     }
 }
