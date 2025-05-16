@@ -3,6 +3,7 @@ require_once(__DIR__ . '/../../config/database.php');
 
 class UserService{
     private ?PDO $conexion;
+    private const MAX_USERS_RESULT = 1000; // Constante para limitar resultados
 
     public function __construct(){
         $this->conexion = getConnection();
@@ -10,8 +11,10 @@ class UserService{
 
     public function getAllUsers(): false|PDOStatement{
         try {
-            $sql = "SELECT id, usuario, rol FROM usuarios ORDER BY id DESC";
-            return $this->conexion->query($sql);
+            $sql = "SELECT id, usuario, rol FROM usuarios ORDER BY id DESC LIMIT " . self::MAX_USERS_RESULT;
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute();
+            return $stmt;
         } catch (PDOException $e) {
             throw new Exception("Error al cargar los usuarios: " . $e->getMessage());
         }
@@ -27,33 +30,63 @@ class UserService{
         }
     }
 
-    public function updateUserWithoutPassword($name,$surname,$username,$email,$userId): bool{
+    public function updateUser($name, $surname, $username, $email, $password, $userId): bool{
         try {
-            $sql = "UPDATE usuarios SET nombre = ?,apellido = ?, usuario = ?, email = ? WHERE id = ?";
-            $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$name,$surname,$username,$email,$userId]);
+            if (!empty($password)) {
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                $sql = "UPDATE usuarios SET nombre = ?, apellido = ?, usuario = ?, email = ?, contrasena = ? WHERE id = ?";
+                $stmt = $this->conexion->prepare($sql);
+                return $stmt->execute([$name, $surname, $username, $email, $hashedPassword, $userId]);
+            } else {
+                $sql = "UPDATE usuarios SET nombre = ?, apellido = ?, usuario = ?, email = ? WHERE id = ?";
+                $stmt = $this->conexion->prepare($sql);
+                return $stmt->execute([$name, $surname, $username, $email, $userId]);
+            }
         } catch (PDOException $e) {
             throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
         }
     }
 
-    public function updateUserWithPassword($name,$surname,$username,$email,$password,$userId): bool{
+    public function verifyUserAndEmailExist($username, $email, $excludeUserId = null): array {
         try {
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "UPDATE usuarios SET nombre = ?, apellido = ?, usuario = ?, email=?, contrasena = ? WHERE id = ?";
+            $sql = "SELECT usuario, email FROM usuarios WHERE (usuario = ? OR email = ?)";
+            $params = [$username, $email];
+            
+            if ($excludeUserId !== null) {
+                $sql .= " AND id != ?";
+                $params[] = $excludeUserId;
+            }
+            
             $stmt = $this->conexion->prepare($sql);
-            return $stmt->execute([$name,$surname,$username,$email,$hashedPassword,$userId]);
+            $stmt->execute($params);
+            
+            $result = [
+                'usernameExists' => false,
+                'emailExists' => false
+            ];
+            
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                if ($row['usuario'] === $username) {
+                    $result['usernameExists'] = true;
+                }
+                if ($row['email'] === $email) {
+                    $result['emailExists'] = true;
+                }
+            }
+            
+            return $result;
         } catch (PDOException $e) {
-            throw new Exception("Error al actualizar el usuario: " . $e->getMessage());
+            throw new Exception("Error al verificar usuario y email: " . $e->getMessage());
         }
     }
 
     public function verifyUserExist($usuario): bool{
         try {
-            $sql = "SELECT id FROM usuarios WHERE usuario = ?";
+            $sql = "SELECT COUNT(id) AS count FROM usuarios WHERE usuario = ? LIMIT 1";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$usuario]);
-            return $stmt->rowCount() > 0;
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 0;
         } catch (PDOException $e) {
             throw new Exception("Error al verificar el usuario: " . $e->getMessage());
         }
@@ -61,7 +94,7 @@ class UserService{
 
     public function verifyEmailExist($email): false|PDOStatement{
         try {
-            $sql = "SELECT email FROM usuarios WHERE email = ?";
+            $sql = "SELECT email FROM usuarios WHERE email = ? LIMIT 1";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$email]);
             return $stmt;
@@ -82,9 +115,8 @@ class UserService{
     }
 
     public function verifyLogin($usuario, $contrasena): false|array{
-
         try {
-            $sql = "SELECT * FROM usuarios WHERE usuario = ?";
+            $sql = "SELECT id, usuario, contrasena, rol FROM usuarios WHERE usuario = ? LIMIT 1";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$usuario]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -92,9 +124,9 @@ class UserService{
             if ($user && password_verify($contrasena, $user['contrasena'])) {
                 if (password_needs_rehash($user['contrasena'], PASSWORD_DEFAULT)) {
                     $hashedPassword = password_hash($contrasena, PASSWORD_DEFAULT);
-                    $sql = "UPDATE usuarios SET contrasena = ? WHERE usuario = ?";
+                    $sql = "UPDATE usuarios SET contrasena = ? WHERE id = ?";
                     $stmt = $this->conexion->prepare($sql);
-                    $stmt->execute([$hashedPassword, $usuario]);
+                    $stmt->execute([$hashedPassword, $user['id']]);
                 }
                 return [
                     'id' => $user['id'],
@@ -110,12 +142,23 @@ class UserService{
     
     public function getUserByUsername($username): array|false {
         try {
-            $sql = "SELECT nombre,apellido,usuario,email,rol FROM usuarios WHERE usuario = ?";
+            $sql = "SELECT nombre, apellido, usuario, email, rol FROM usuarios WHERE usuario = ? LIMIT 1";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$username]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             throw new Exception("Error al obtener el usuario: " . $e->getMessage());
+        }
+    }
+
+    public function getUserById($userId): array|false {
+        try {
+            $sql = "SELECT nombre, apellido, usuario, email, rol FROM usuarios WHERE id = ? LIMIT 1";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$userId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error al obtener el usuario por ID: " . $e->getMessage());
         }
     }
 
@@ -130,3 +173,4 @@ class UserService{
         }
     }
 }
+
